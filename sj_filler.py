@@ -14,7 +14,7 @@ driver = webdriver.Safari()
 driver.get('https://www.sj.se/sv/hem.html#/')
 
 from_location= driver.find_element_by_id("booking-departure")
-from_location.send_keys("UPPSALA")
+from_location.send_keys("Uppsala")
 
 
 destinations = ['Abisko Turiststation', 'Abisko Östra', 'Kiruna', 'Gällivare', 'Nattavaara', 'Murjek', 'Älvsbyn', 'Jörn', 'Bastuträsk', 'Vindeln', 'Umeå', 'Umeå Ö', 'Nordmaling', 'Örnsköldsvik', 'Kramfors', 'Härnösand', 'Boden', 'Sunderby sjukhus', 'Luleå', 'Duved', 'Åre', 'Järpen', 'Krokom', 'Undersåker', 'Morastrand', 'Mora', 'Rättvik', 'Östersund','Bräcke', 'Ånge', 'Ljusdal', 'Järvsö', 'Bollnäs', 'Ockelbo', 'Timrå', 'Sundsvall', 'Tällberg', 'Ludvika', 'Leksand', 'Insjön', 'Gagnef', 'Djurås', 'Borlänge', 'Smedjebacken', 'Söderbärke', 'Falun', 'Hofors', 'Storvik', 'Sandviken', 'Hudiksvall', 'Söderhamn', 'Gävle', 'Tierp', 'Uppsala', 'Knivsta', 'Arlanda', 'Sundbyberg', 'Stockholm', 'Flemingsberg', 'Södertälje Syd', 'Grängesberg', 'Ställdalen', 'Säter', 'Hedemora', 'Torsåker', 'Horndals Bruk', 'Kongsvinger', 'Avestacentrum', 'Fagersta N', 'Kopparberg', 'Vad', 'Storå', 'Lindesberg', 'Fors', 'Avesta', 'Krylbo', 'Karbenning', 'Fagersta', 'Ängelsberg', 'Virsbo', 'Ramnäs', 'Sala', 'Heby', 'Morgongåva', 'Skinnskatteberg', 'Oslo','Munkedal', 'Uddevalla', 'Ransta', 'Märsta', 'Frövi', 'Surahammar', 'Dingtuna', 'Västerås', 'Arvika', 'Grums', 'Kil', 'Karlstad', 'Kristinehamn', 'Hallstahammar', 'Köping', 'Arboga', 'Kolbäck', 'Bålsta', 'Kvicksund', 'Strängnäs', 'Eskilstuna', 'Läggesta', 'Flen', 'Nykvarn', 'Strömstad', 'Skee', 'Halden', 'Ed', 'Säffle', 'Åmål', 'Mellerud', 'Degerfors', 'Laxå', 'Örebro', 'ÖrebroS', 'Kumla', 'Kungsör', 'Hälleforsnäs', 'Vingåker', 'Tanum', 'Dingle', 'Töreboda', 'Skövde', 'Hallsberg', 'Motala', 'Skänninge', 'Katrineholm', 'Gnesta', 'Vagnhärad', 'Nyköping', 'Öxnered', 'Vänersborg', 'Vara', 'Trollhättan', 'Alingsås', 'Mjölby', 'Tranås', 'Linköping', 'Falköping', 'Norrköping', 'Kolmården', 'Vårgårda', 'Herrljunga', 'Borås', 'Limmared', 'Hestra', 'Gnosjö', 'Helsingborg', 'Kastrup', 'Göteborg', 'Varberg', 'Halmstad', 'Jönköping', 'Huskvarna', 'Nässjö', 'Värnamo', 'Alvesta', 'Älmhult', 'Hässleholm', 'Växjö', 'Hovmantorp', 'Lessebo', 'Emmaboda', 'Nybro', 'Kalmar', 'Köpenhamn', 'Lund', 'Malmö', 'Narvik', 'Rombak', 'Katterat', 'Sösterbekk', 'Björnfjell', 'Riksgränsen', 'Katterjåkk', 'Vassijaure', 'Låktatjåkka', 'Björkliden']
@@ -38,18 +38,6 @@ else:
 
 res = driver.execute_script("return document.documentElement.outerHTML")
 soup = bs.BeautifulSoup(res,'lxml')
-
-#data = []
-#table = soup.find('table', attrs={'class':'picker__table'})
-#table_body = table.find('tbody')
-
-#rows = table_body.find_all('tr')
-#for row in rows:
-#    cols = row.find_all('td')
-    #cols = [ele.text.strip() for ele in cols]
-    #data.append([ele for ele in cols if ele]) # Get rid of empty values
-#print(data)
-
 
 departure_day = str(4)
 return_day = str(20)
@@ -111,14 +99,9 @@ add_passenger = WebDriverWait(driver, 2).until(EC.presence_of_element_located((B
 add_passenger.click()
 
 li2 = dropdown.parent.find_elements_by_xpath('//*[@id="addPassengerGroup"]//option')
-li2[3].click()
+li2[3].click() #selects student
 
-dropdown2 = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerAge')))
+passenger2_age = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"])[2]/option')
+passenger2_age[age_dict[age2-1]].click()
 
-# click the dropdown button
-dropdown2.click()
-
-li3 = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"]/option)[2]')
-
-# click the age
-li3[3].click()
+driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
