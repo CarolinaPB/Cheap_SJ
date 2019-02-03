@@ -13,10 +13,27 @@ soup = bs.BeautifulSoup(res,'lxml')
 
 table = soup.find('div', {'class':'timetable__table'})
 price = soup.find_all('span', {'class':'sj-price ng-scope'})
+time = soup.find_all("div", {'class':'timetable__time-info timetable__time-info--small guttered--quarter-vertically ng-binding'})
 #.text.replace("\n","").strip()
 
+time_list = []
+for t in time:
+    time_list.append(t.text.replace("\n","").strip())
+print (time_list)
+
+price_list = []
 for p in price:
-    print(p.text.replace("\n","").strip())
+    price_list.append(p.text.replace("\n","").strip())
+
+print(price_list)
+length = (len(price_list)-1)/2
+print(length)
+
+#for p in price:
+#    for t in time:
+#        print(t.text.replace("\n","").strip())
+#        print(p.text.replace("\n","").strip())
+
 
 
 #prices = soup.find_all('div', {'class':'...'})
