@@ -4,6 +4,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import bs4 as bs
+import urllib.request
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.ui import Select
+
 
 driver = webdriver.Safari()
 driver.get('https://www.sj.se/sv/hem.html#/')
@@ -30,18 +35,90 @@ for i in range(10):
 else:
     raise e
 
-#firstday = driver.find_element_by_id("P279231690_table")
 
-table_elements = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//*[@id='P279231690_table']")))
-for table_element in table_elements:
-    for row in table_element.find_elements_by_xpath(".//tr"):
-        print(row.text)
+res = driver.execute_script("return document.documentElement.outerHTML")
+soup = bs.BeautifulSoup(res,'lxml')
+
+#data = []
+#table = soup.find('table', attrs={'class':'picker__table'})
+#table_body = table.find('tbody')
+
+#rows = table_body.find_all('tr')
+#for row in rows:
+#    cols = row.find_all('td')
+    #cols = [ele.text.strip() for ele in cols]
+    #data.append([ele for ele in cols if ele]) # Get rid of empty values
+#print(data)
 
 
+departure_day = str(4)
+return_day = str(20)
+
+tables = driver.find_elements_by_class_name("picker__table")
+tables_id =[]
+for t in tables:
+    tables_id.append(t.get_attribute("id"))
 
 
+#### Change the day for the departure train
+element_to_click = "//*[@id='"+tables_id[0]+"']//button[contains(text(),'"+ departure_day+"') and @class='picker__day picker__day--infocus']"
 
+wait = WebDriverWait(driver,2)
+wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
 
+#### Change the day for the returning train
+element_to_click = "//*[@id='"+tables_id[1]+"']//button[contains(text(),'"+ return_day+"') and @class='picker__day picker__day--infocus']"
 
+wait = WebDriverWait(driver,2)
+wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
 
-#driver.quit()
+#### expand dropdown and choose traveler category (student)
+dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerType')))
+
+# click the dropdown button
+dropdown.click()
+
+# find all list elements in the dropdown.
+# target the parent of the button for the list
+li = dropdown.parent.find_elements_by_xpath('//*[@id="passengerType"]//option')
+
+# click the second element in list
+li[2].click()
+
+#### choose age of first passengers
+age1 = 24
+age2 = 22
+dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerAge')))
+
+# click the dropdown button
+dropdown.click()
+
+# find all list elements in the dropdown.
+# target the parent of the button for the list
+age=list(range(15,31))
+num_seq=list(range(0,16))
+num_seq = num_seq[::-1]
+age_dict = dict(zip(age, num_seq))
+
+li = dropdown.parent.find_elements_by_xpath('//*[@id="passengerAge"]/option')
+
+# click the age
+li[age_dict[age1-1]].click()
+
+add_passenger = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'addPassengerGroup')))
+
+# click the dropdown button
+add_passenger.click()
+
+li2 = dropdown.parent.find_elements_by_xpath('//*[@id="addPassengerGroup"]//option')
+li2[3].click()
+
+dropdown2 = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerAge')))
+
+# click the dropdown button
+dropdown2.click()
+
+li3 = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"]/option)[2]')
+
+# click the age
+li3[3].click()
