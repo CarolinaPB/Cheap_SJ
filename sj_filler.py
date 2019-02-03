@@ -6,12 +6,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import bs4 as bs
 import urllib.request
-from selenium.webdriver.support.select import Select
-from selenium.webdriver.support.ui import Select
 
 
 driver = webdriver.Safari()
 driver.get('https://www.sj.se/sv/hem.html#/')
+driver.maximize_window()
 
 from_location= driver.find_element_by_id("booking-departure")
 from_location.send_keys("Uppsala")
@@ -20,7 +19,7 @@ from_location.send_keys("Uppsala")
 destinations = ['Abisko Turiststation', 'Abisko Östra', 'Kiruna', 'Gällivare', 'Nattavaara', 'Murjek', 'Älvsbyn', 'Jörn', 'Bastuträsk', 'Vindeln', 'Umeå', 'Umeå Ö', 'Nordmaling', 'Örnsköldsvik', 'Kramfors', 'Härnösand', 'Boden', 'Sunderby sjukhus', 'Luleå', 'Duved', 'Åre', 'Järpen', 'Krokom', 'Undersåker', 'Morastrand', 'Mora', 'Rättvik', 'Östersund','Bräcke', 'Ånge', 'Ljusdal', 'Järvsö', 'Bollnäs', 'Ockelbo', 'Timrå', 'Sundsvall', 'Tällberg', 'Ludvika', 'Leksand', 'Insjön', 'Gagnef', 'Djurås', 'Borlänge', 'Smedjebacken', 'Söderbärke', 'Falun', 'Hofors', 'Storvik', 'Sandviken', 'Hudiksvall', 'Söderhamn', 'Gävle', 'Tierp', 'Uppsala', 'Knivsta', 'Arlanda', 'Sundbyberg', 'Stockholm', 'Flemingsberg', 'Södertälje Syd', 'Grängesberg', 'Ställdalen', 'Säter', 'Hedemora', 'Torsåker', 'Horndals Bruk', 'Kongsvinger', 'Avestacentrum', 'Fagersta N', 'Kopparberg', 'Vad', 'Storå', 'Lindesberg', 'Fors', 'Avesta', 'Krylbo', 'Karbenning', 'Fagersta', 'Ängelsberg', 'Virsbo', 'Ramnäs', 'Sala', 'Heby', 'Morgongåva', 'Skinnskatteberg', 'Oslo','Munkedal', 'Uddevalla', 'Ransta', 'Märsta', 'Frövi', 'Surahammar', 'Dingtuna', 'Västerås', 'Arvika', 'Grums', 'Kil', 'Karlstad', 'Kristinehamn', 'Hallstahammar', 'Köping', 'Arboga', 'Kolbäck', 'Bålsta', 'Kvicksund', 'Strängnäs', 'Eskilstuna', 'Läggesta', 'Flen', 'Nykvarn', 'Strömstad', 'Skee', 'Halden', 'Ed', 'Säffle', 'Åmål', 'Mellerud', 'Degerfors', 'Laxå', 'Örebro', 'ÖrebroS', 'Kumla', 'Kungsör', 'Hälleforsnäs', 'Vingåker', 'Tanum', 'Dingle', 'Töreboda', 'Skövde', 'Hallsberg', 'Motala', 'Skänninge', 'Katrineholm', 'Gnesta', 'Vagnhärad', 'Nyköping', 'Öxnered', 'Vänersborg', 'Vara', 'Trollhättan', 'Alingsås', 'Mjölby', 'Tranås', 'Linköping', 'Falköping', 'Norrköping', 'Kolmården', 'Vårgårda', 'Herrljunga', 'Borås', 'Limmared', 'Hestra', 'Gnosjö', 'Helsingborg', 'Kastrup', 'Göteborg', 'Varberg', 'Halmstad', 'Jönköping', 'Huskvarna', 'Nässjö', 'Värnamo', 'Alvesta', 'Älmhult', 'Hässleholm', 'Växjö', 'Hovmantorp', 'Lessebo', 'Emmaboda', 'Nybro', 'Kalmar', 'Köpenhamn', 'Lund', 'Malmö', 'Narvik', 'Rombak', 'Katterat', 'Sösterbekk', 'Björnfjell', 'Riksgränsen', 'Katterjåkk', 'Vassijaure', 'Låktatjåkka', 'Björkliden']
 
 destination_location = driver.find_element_by_id("booking-arrival")
-destination_location.send_keys(destinations[0])
+destination_location.send_keys(destinations[10])
 destination_location.send_keys(Keys.RETURN)
 
 for i in range(10):
@@ -39,13 +38,56 @@ else:
 res = driver.execute_script("return document.documentElement.outerHTML")
 soup = bs.BeautifulSoup(res,'lxml')
 
-departure_day = str(4)
-return_day = str(20)
+departure_date = "05/03"
+return_date = "20/04"
 
+#### gets ids for the two date tables
 tables = driver.find_elements_by_class_name("picker__table")
 tables_id =[]
 for t in tables:
     tables_id.append(t.get_attribute("id"))
+
+month_header_id = []
+for el in tables_id:
+    month_header_id.append(el.replace("table", "root"))
+
+## correct month
+table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
+table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+
+month_departure_table = table_month1[0].text
+month_return_table = table_month2[0].text
+
+month_dict={"01":"januari", "02":"februari", "03":"mars", "04":"april","05":"maj", "06":"juni", "07":"juli", "08":"augusti", "09":"september", "10":"oktober", "11":"november", "12":"december"}
+
+departure_day, departure_month = departure_date.split("/")
+return_day, return_month = return_date.split("/")
+
+
+if departure_day[0] =="0":
+    departure_day=departure_day[-1]
+if return_day[0]=="0":
+    return_day=return_day[-1]
+
+departure_month_extended = month_dict[departure_month]
+return_month_extended = month_dict[return_month]
+
+#### if the inputed month is not the current month, it will change the calendar to the desired month
+while departure_month_extended != month_departure_table:
+    driver.find_element_by_css_selector("#"+month_header_id[0]+" > div > div > div > div > div > div.picker__nav--next").click()
+
+    table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
+    month_departure_table = table_month1[0].text
+
+    table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+    month_return_table = table_month2[0].text
+
+while month_return_table != return_month_extended:
+    driver.find_element_by_css_selector("#"+month_header_id[1]+" > div > div > div > div > div > div.picker__nav--next").click()
+
+    table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+    month_return_table = table_month2[0].text
+
 
 
 #### Change the day for the departure train
@@ -104,4 +146,5 @@ li2[3].click() #selects student
 passenger2_age = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"])[2]/option')
 passenger2_age[age_dict[age2-1]].click()
 
+### submit and go to next page
 driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
