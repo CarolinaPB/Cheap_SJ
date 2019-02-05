@@ -38,7 +38,7 @@ else:
 res = driver.execute_script("return document.documentElement.outerHTML")
 soup = bs.BeautifulSoup(res,'lxml')
 
-departure_date = "05/03"
+departure_date = "05/04"
 return_date = "20/04"
 
 #### gets ids for the two date tables
@@ -54,6 +54,7 @@ for el in tables_id:
 ## correct month
 table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
 table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+
 
 month_departure_table = table_month1[0].text
 month_return_table = table_month2[0].text
@@ -79,8 +80,22 @@ while departure_month_extended != month_departure_table:
     table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
     month_departure_table = table_month1[0].text
 
-    table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
-    month_return_table = table_month2[0].text
+    #table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+    #month_return_table = table_month2[0].text
+
+
+#### added now, doesn't seem to help
+tables = driver.find_elements_by_class_name("picker__table")
+tables_id =[]
+for t in tables:
+    tables_id.append(t.get_attribute("id"))
+
+
+#### Change the day for the departure train
+element_to_click = "//*[@id='"+tables_id[0]+"']//button[text()='"+ departure_day+"' and @class='picker__day picker__day--infocus']"
+
+wait = WebDriverWait(driver,2)
+wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
 
 while month_return_table != return_month_extended:
     driver.find_element_by_css_selector("#"+month_header_id[1]+" > div > div > div > div > div > div.picker__nav--next").click()
@@ -89,18 +104,28 @@ while month_return_table != return_month_extended:
     month_return_table = table_month2[0].text
 
 
-
-#### Change the day for the departure train
-element_to_click = "//*[@id='"+tables_id[0]+"']//button[contains(text(),'"+ departure_day+"') and @class='picker__day picker__day--infocus']"
-
-wait = WebDriverWait(driver,2)
-wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
-
 #### Change the day for the returning train
-element_to_click = "//*[@id='"+tables_id[1]+"']//button[contains(text(),'"+ return_day+"') and @class='picker__day picker__day--infocus']"
+element_to_click2 = "//*[@id='"+tables_id[1]+"']//button[text()='"+ return_day+"' and @class='picker__day picker__day--infocus']"
 
 wait = WebDriverWait(driver,2)
-wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
+wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click2))).click()
+
+
+#### choose to search from the earliest departure time possible
+dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'timeOptionsDeparture')))
+dropdown.click()
+
+departure_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsDeparture"]//option')
+departure_time[0].click()
+
+#### choose to search from the earliest return time possible
+dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'timeOptionsArrival')))
+dropdown.click()
+
+return_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsArrival"]//option')
+return_time[0].click()
+
+
 
 #### expand dropdown and choose traveler category (student)
 dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerType')))
