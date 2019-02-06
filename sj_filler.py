@@ -38,8 +38,8 @@ else:
 res = driver.execute_script("return document.documentElement.outerHTML")
 soup = bs.BeautifulSoup(res,'lxml')
 
-departure_date = "05/04"
-return_date = "20/06"
+departure_date = "10/03"
+return_date = "20/04"
 
 #### gets ids for the two date tables
 tables = driver.find_elements_by_class_name("picker__table")
@@ -57,26 +57,21 @@ table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/
 
 
 month_departure_table = table_month1[0].text
-month_return_table = table_month2[0].text
+
 
 month_dict={"01":"januari", "02":"februari", "03":"mars", "04":"april","05":"maj", "06":"juni", "07":"juli", "08":"augusti", "09":"september", "10":"oktober", "11":"november", "12":"december"}
 
 departure_day, departure_month = departure_date.split("/")
-return_day, return_month = return_date.split("/")
+
 
 if departure_day[0] =="0":
     departure_day=departure_day[-1]
-if return_day[0]=="0":
-    return_day=return_day[-1]
 
 departure_month_extended = month_dict[departure_month]
-return_month_extended = month_dict[return_month]
 
-print("return_month_extended")
-print(return_month_extended)
+
 #### if the inputed month is not the current month, it will change the calendar to the desired month
-print("departure_month_extended")
-print(departure_month_extended)
+
 while True:
     if departure_month_extended != month_departure_table:
         driver.find_element_by_css_selector("#"+month_header_id[0]+" > div > div > div > div > div > div.picker__nav--next").click()
@@ -88,11 +83,19 @@ while True:
     else:
         break
 
+
 #### Change the day for the departure train
 element_to_click = "//*[@id='"+tables_id[0]+"']//button[text()='"+ departure_day+"' and @class='picker__day picker__day--infocus']"
 
-wait = WebDriverWait(driver,2)
+wait = WebDriverWait(driver,10)
 wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
+
+table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
+month_return_table = table_month2[0].text
+return_day, return_month = return_date.split("/")
+if return_day[0]=="0":
+    return_day=return_day[-1]
+return_month_extended = month_dict[return_month]
 
 #### change month on the return table
 while True:
@@ -103,6 +106,7 @@ while True:
         month_return_table = table_month2[0].text
     else:
         break
+
 
 #### Change the day for the returning train
 element_to_click2 = "//*[@id='"+tables_id[1]+"']//button[text()='"+ return_day+"' and @class='picker__day picker__day--infocus']"
