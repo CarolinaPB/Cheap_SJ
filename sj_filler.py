@@ -182,7 +182,7 @@ passenger2_age[age_dict[age2-1]].click()
 ### submit and go to next page
 driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
 
-#### ON THE RESULTS PAGE
+#### ON THE RESULTS PAGE ####
 
 #url = driver.current_url
 #driver.quit()
@@ -190,7 +190,7 @@ driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/d
 time.sleep(5)
 
 
-#### show all the times available bot departure
+#### show all the times available for departure
 more_travel = driver.find_elements_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a")
 t = True
 while t:

@@ -13,7 +13,7 @@ def scraper(driver):
 
     time_schedule = soup.find_all("div", {'class':'timetable__time-info timetable__time-info--small guttered--quarter-vertically ng-binding'})
     nrows =0
-    ncols = 4
+    ncols = 5
     for t in time_schedule:
         nrows+=1
 
@@ -22,6 +22,24 @@ def scraper(driver):
     prices = soup.find_all('div', {'class':'timetable-cell timetable-cell__right-cell timetable-cell__unexpanded timetable-cell__unexpanded-class timetable-cell__class ng-isolate-scope'})
     operator = soup.find_all('div', {'class':'timetable__extra-info-icon'})
 
+    travel_time = soup.find_all("span",{'class':'ng-isolate-scope ng-binding'})
+
+    travel_t=[]
+    for t in range(0,len(travel_time),2):
+        travel_t.append(travel_time[t].text)
+        #print(travel_t[t])
+    h1=[]
+    h2=[]
+    for t in range(len(time_schedule)):
+        hours = time_schedule[t].text.replace("\n","").strip()
+        hours = hours.replace(":", "")
+        h1.append(hours[:4])
+        #h2.append(hours[7:])
+
+    t=1
+    while h1[t-1]<=h1[t]:
+        print(h1[t-1]+"=<"+h1[t])
+        t+=1
     for t in range(len(time_schedule)):
         hours = time_schedule[t].text.replace("\n","").strip()
         hours = hours.replace(":", "")
@@ -38,15 +56,24 @@ def scraper(driver):
         except:
             price=None
 
-        table_information[t][3] = price
+        table_information[t][4] = price
 
         op = operator[t].text.replace("\n","").strip()
         if "+0" in op:
             op = op.replace("+0","")
-        table_information[t][2] = op
+        table_information[t][3] = op
+
+        table_information[t][2] = travel_t[t].replace(" h", "")
 
     print(table_information)
+    print()
+    #remove rows with None
+    #mask = np.any(np.equal(table_information, None), axis=1)
+    #print(table_information[~mask])
+    #print()
+    #driver.quit()
+
+#sorted([list]) sorts even with separator like ":"
 
 
-
-    driver.quit()
+#guttered--double-bottom guttered--mobile-bottom ng-isolate-scope
