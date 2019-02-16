@@ -215,4 +215,4 @@ while t:
             #break
 
 
-scraper(driver)
+scraper(driver, destinations[10])

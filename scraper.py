@@ -29,16 +29,16 @@ def create_table(soup,table_class, trip):
         hours = hours.replace(":","")
 
         if trip == "departure":
-            h1 = hours[:5]
-            h2 = hours[8:]
+            h1 = hours[:4]
+            h2 = hours[7:]
             if int(h1) <= 1300 and int(h1)>=700:
                 arr[i][0] = h1
                 arr[i][1] = h2
 
         elif trip == "arrival":
-            h1 = hours[:5]
-            h2 = hours[8:]
-            if int(h1) >= 1700:
+            h1 = hours[:4]
+            h2 = hours[7:]
+            if int(h2) >= 1700:
                 arr[i][0] = h1
                 arr[i][1] = h2
 
@@ -56,6 +56,7 @@ def create_table(soup,table_class, trip):
         price = price.replace(" ","")
         try:
             int(price)
+            price=int(price)
         except:
             price=None
 
@@ -65,18 +66,44 @@ def create_table(soup,table_class, trip):
     mask = np.any(np.equal(arr, None), axis=1)
     arr = (arr[~mask])
     return(arr)
+def find_top_cheapest(departure_table, arrival_table, destination):
+    nrows=len(departure_table)*len(arrival_table)
+    arr = np.empty((nrows, 4), dtype=object)
 
-def scraper(driver):
+    n=0
+    for dept_el in departure_table:
+        for arrv_el in arrival_table:
+            arr[n][0] = destination
+            arr[n][1] = dept_el
+            arr[n][2] = arrv_el
+            arr[n][3] = dept_el[4]+arrv_el[4] #total price
+            n+=1
+
+    ind = np.argsort(arr[:,-1])
+    arr_sorted_by_price = arr[ind]
+
+    #### gets top 5 results (or less if there are less results available)
+    if nrows >= 5:
+        final_array = arr_sorted_by_price[:5][:]
+    else:
+        final_array = arr_sorted_by_price
+
+    return final_array
+
+
+def scraper(driver, destination):
     time.sleep(5)
 
     html = driver.page_source
     soup = bs.BeautifulSoup(html, "lxml")
 
     departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope", "departure")
-    print(departure_table)
-    print()
+    #print(departure_table)
+    #print()
     arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival"))
-    print(arrival_table)
+    #print(arrival_table)
+    top_table = find_top_cheapest(departure_table, arrival_table, destination)
+    print(top_table)
 
     driver.quit()
 
