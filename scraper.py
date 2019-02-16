@@ -12,7 +12,9 @@ def create_table(soup,table_class, trip):
     '''
     page_table = soup.find("div", {"class":table_class})
     travel_hours = page_table.find_all("div", "timetable__time-info timetable__time-info--small guttered--quarter-vertically ng-binding")
+
     prices = page_table.find_all('div', {'class':'timetable-cell timetable-cell__right-cell timetable-cell__unexpanded timetable-cell__unexpanded-class timetable-cell__class ng-isolate-scope'})
+
     travel_time = page_table.find_all("span",{'class':'ng-isolate-scope ng-binding'})
     travel_t=[]
     for t in range(0,len(travel_time),2):
@@ -62,10 +64,13 @@ def create_table(soup,table_class, trip):
 
         arr[i][4] = price
 
+
     #remove rows with None
     mask = np.any(np.equal(arr, None), axis=1)
     arr = (arr[~mask])
+
     return(arr)
+
 def find_top_cheapest(departure_table, arrival_table, destination):
     nrows=len(departure_table)*len(arrival_table)
     arr = np.empty((nrows, 4), dtype=object)
@@ -82,16 +87,18 @@ def find_top_cheapest(departure_table, arrival_table, destination):
     ind = np.argsort(arr[:,-1])
     arr_sorted_by_price = arr[ind]
 
+
     #### gets top 5 results (or less if there are less results available)
     if nrows >= 5:
         final_array = arr_sorted_by_price[:5][:]
     else:
         final_array = arr_sorted_by_price
 
-    return final_array
+    return (final_array)
 
 
 def scraper(driver, destination):
+    print("scraper")
     time.sleep(5)
 
     html = driver.page_source
@@ -103,8 +110,7 @@ def scraper(driver, destination):
     arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival"))
     #print(arrival_table)
     top_table = find_top_cheapest(departure_table, arrival_table, destination)
-    print(top_table)
-
-    driver.quit()
-
+    #print(top_table)
+    #driver.quit()
+    return(top_table)
 #sorted([list]) sorts even with separator like ":"
