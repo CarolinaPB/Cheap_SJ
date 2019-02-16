@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 
-def create_table(soup,table_class):
+def create_table(soup,table_class, trip):
     '''
     Creates a table with hour of departure, of arrival to destination, travel time, if only SJ or if there are other companies involved and price
     If any of the rows has a null value, that row is removed from the table
@@ -26,8 +26,22 @@ def create_table(soup,table_class):
 
     for i in range(nrows):
         hours = travel_hours[i].text.replace("\n","").strip()
-        arr[i][0] = hours[:5]
-        arr[i][1] = hours[8:]
+        hours = hours.replace(":","")
+
+        if trip == "departure":
+            h1 = hours[:5]
+            h2 = hours[8:]
+            if int(h1) =< 1300 and int(h1)>=700:
+                arr[i][0] = h1
+                arr[i][1] = h2
+
+        elif trip == "arrival":
+            h1 = hours[:5]
+            h2 = hours[8:]
+            if int(h1) >= 1700:
+                arr[i][0] = h1
+                arr[i][1] = h2
+
 
         arr[i][2] = travel_t[i].replace(" h", "")
 
@@ -58,10 +72,10 @@ def scraper(driver):
     html = driver.page_source
     soup = bs.BeautifulSoup(html, "lxml")
 
-    departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope")
+    departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope", "departure")
     print(departure_table)
     print()
-    arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope"))
+    arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival"))
     print(arrival_table)
 
     driver.quit()
