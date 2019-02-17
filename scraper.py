@@ -105,13 +105,11 @@ def scraper(driver, destination):
     soup = bs.BeautifulSoup(html, "lxml")
 
     departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope", "departure")
-    #print(departure_table)
-    #print()
+
     arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival"))
-    #print(arrival_table)
+
     top_table = find_top_cheapest(departure_table, arrival_table, destination)
-    #print(top_table)
-    #driver.quit()
+
     return(top_table)
 
 def ordered_by_price(arr):
@@ -120,26 +118,36 @@ def ordered_by_price(arr):
     sorted_total_array = to_sort[ind]
     return(sorted_total_array)
 
-def get_top_results(arr,travel_time):
-    travel_time = travel_time.replace(":","")
-    travel_time= int(travel_time)
+def get_top_results(arr,min_travel, max_travel):
+    min_travel = min_travel.replace(":","")
+    min_travel= int(min_travel)
+    max_travel = max_travel.replace(":","")
+    max_travel= int(max_travel)
+    #print("min "+str(min_travel))
+    #print("max "+str(max_travel))
     nrows = len(arr)
     rows_to_remove=[]
     for i in range(nrows):
         dept_travel_time= int(arr[i][1][2])
+        #print("dept"+str(dept_travel_time))
         arr_travel_time = int(arr[i][2][2])
-        if travel_time<dept_travel_time and travel_time<arr_travel_time :
+        #print("arr"+str(arr_travel_time))
+        #if min_travel>dept_travel_time>max_travel and min_travel>arr_travel_time>max_travel :
+        if dept_travel_time>max_travel and arr_travel_time>max_travel:
+            #print(str(min_travel)+">"+str(dept_travel_time)+">"+str(max_travel))
             rows_to_remove.append(i)
     filtered_arr = np.delete(arr,rows_to_remove,axis=0)
     return (filtered_arr)
 
-def show_results(arr,start_point, travel_time):
+def show_results(arr,start_point, min_travel, max_travel):
     by_price = ordered_by_price(arr)
-    top = get_top_results(by_price,travel_time)
-    #print(top)
-    file_name = "output_"+start_point+"_"+travel_time+".txt"
+
+    top = get_top_results(by_price,min_travel, max_travel)
+
+    file_name = "output_"+start_point+"_"+min_travel+"-"+max_travel+".txt"
     with open(file_name,"w") as file:
-        file.write("Maximum travel time: "+travel_time+"\n\n")
+        file.write("Minium travel time: "+min_travel+"\n")
+        file.write("Maximum travel time: "+max_travel+"\n\n")
         nrows=len(top)
         for i in range(nrows):
             file.write("Destination: "+top[i][0]+"\n")
@@ -150,6 +158,6 @@ def show_results(arr,start_point, travel_time):
             file.write("Price: "+str(top[i][1][4])+"\n")
             file.write("Return"+"\n")
             file.write("Travel time: "+top[i][2][2]+"\n")
-            file.write("Price: "+str(top[i][1][4])+"\n")
+            file.write("Price: "+str(top[i][2][4])+"\n")
             file.write("Total price: "+str(top[i][3])+"\n")
             file.write("\n")
