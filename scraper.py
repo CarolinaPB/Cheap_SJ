@@ -136,14 +136,20 @@ def get_top_results(arr,travel_time):
 def show_results(arr,start_point, travel_time):
     by_price = ordered_by_price(arr)
     top = get_top_results(by_price,travel_time)
-    print(top)
+    #print(top)
     file_name = "output_"+start_point+"_"+travel_time+".txt"
     with open(file_name,"w") as file:
-        file.write("Maximum travel time: "+travel_time+"\n")
+        file.write("Maximum travel time: "+travel_time+"\n\n")
         nrows=len(top)
         for i in range(nrows):
             file.write("Destination: "+top[i][0]+"\n")
             file.write("Travel hours: ")
             file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
+            file.write("Departure"+"\n")
             file.write("Travel time: "+top[i][1][2]+"\n")
+            file.write("Price: "+str(top[i][1][4])+"\n")
+            file.write("Return"+"\n")
+            file.write("Travel time: "+top[i][2][2]+"\n")
+            file.write("Price: "+str(top[i][1][4])+"\n")
+            file.write("Total price: "+str(top[i][3])+"\n")
             file.write("\n")
