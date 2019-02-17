@@ -3,6 +3,7 @@ import urllib.request
 from selenium import webdriver
 import time
 import numpy as np
+import re
 
 
 def create_table(soup,table_class, trip):
@@ -45,7 +46,7 @@ def create_table(soup,table_class, trip):
                 arr[i][1] = h2
 
 
-        arr[i][2] = travel_t[i].replace(" h", "")
+        arr[i][2] = travel_t[i].replace(" h", "").replace(":","")
 
         op = operator[i].text.replace("\n","").strip()
         if "+0" in op:
@@ -96,9 +97,8 @@ def find_top_cheapest(departure_table, arrival_table, destination):
 
     return (final_array)
 
-
 def scraper(driver, destination):
-    print("scraper")
+
     time.sleep(5)
 
     html = driver.page_source
@@ -113,4 +113,37 @@ def scraper(driver, destination):
     #print(top_table)
     #driver.quit()
     return(top_table)
-#sorted([list]) sorts even with separator like ":"
+
+def ordered_by_price(arr):
+    to_sort = arr[1:][:]
+    ind = np.argsort(to_sort[:,-1])
+    sorted_total_array = to_sort[ind]
+    return(sorted_total_array)
+
+def get_top_results(arr,travel_time):
+    travel_time = travel_time.replace(":","")
+    travel_time= int(travel_time)
+    nrows = len(arr)
+    rows_to_remove=[]
+    for i in range(nrows):
+        dept_travel_time= int(arr[i][1][2])
+        arr_travel_time = int(arr[i][2][2])
+        if travel_time<dept_travel_time and travel_time<arr_travel_time :
+            rows_to_remove.append(i)
+    filtered_arr = np.delete(arr,rows_to_remove,axis=0)
+    return (filtered_arr)
+
+def show_results(arr,start_point, travel_time):
+    by_price = ordered_by_price(arr)
+    top = get_top_results(by_price,travel_time)
+    print(top)
+    file_name = "output_"+start_point+"_"+travel_time+".txt"
+    with open(file_name,"w") as file:
+        file.write("Maximum travel time: "+travel_time+"\n")
+        nrows=len(top)
+        for i in range(nrows):
+            file.write("Destination: "+top[i][0]+"\n")
+            file.write("Travel hours: ")
+            file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
+            file.write("Travel time: "+top[i][1][2]+"\n")
+            file.write("\n")
