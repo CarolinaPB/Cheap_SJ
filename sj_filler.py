@@ -5,21 +5,43 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.options import Options ##
 import bs4 as bs
 import urllib.request
+import argparse
 from scraper import scraper, ordered_by_price, get_top_results, show_results
 import time
 import numpy as np
+from location_list import dest
+
+CHROME_PATH = "/usr/bin/google-chrome" ##
+CROMEDRIVER_PATH ="/Users/Carolina/Web_scraper/chromedriver"##
 
 total_array = np.array(("Destination","dept_info","arr_info","Price"), dtype=object)
 
+#destinations=dest
 
-#destinations = ['Abisko Turiststation', 'Abisko Östra', 'Kiruna', 'Gällivare', 'Nattavaara', 'Murjek', 'Älvsbyn', 'Jörn', 'Bastuträsk', 'Vindeln', 'Umeå', 'Umeå Ö', 'Nordmaling', 'Örnsköldsvik', 'Kramfors', 'Härnösand', 'Boden', 'Sunderby sjukhus', 'Luleå', 'Duved', 'Åre', 'Järpen', 'Krokom', 'Undersåker', 'Morastrand', 'Mora', 'Rättvik', 'Östersund','Bräcke', 'Ånge', 'Ljusdal', 'Järvsö', 'Bollnäs', 'Ockelbo', 'Timrå', 'Sundsvall', 'Tällberg', 'Ludvika', 'Leksand', 'Insjön', 'Gagnef', 'Djurås', 'Borlänge', 'Smedjebacken', 'Söderbärke', 'Falun', 'Hofors', 'Storvik', 'Sandviken', 'Hudiksvall', 'Söderhamn', 'Gävle', 'Tierp', 'Uppsala', 'Knivsta', 'Arlanda', 'Sundbyberg', 'Stockholm', 'Flemingsberg', 'Södertälje Syd', 'Grängesberg', 'Ställdalen', 'Säter', 'Hedemora', 'Torsåker', 'Horndals Bruk', 'Kongsvinger', 'Avesta centrum', 'Fagersta N', 'Kopparberg', 'Vad', 'Storå', 'Lindesberg', 'Fors', 'Avesta', 'Krylbo', 'Karbenning', 'Fagersta', 'Ängelsberg', 'Virsbo', 'Ramnäs', 'Sala', 'Heby', 'Morgongåva', 'Skinnskatteberg', 'Oslo','Munkedal', 'Uddevalla', 'Ransta', 'Märsta', 'Frövi', 'Surahammar', 'Dingtuna', 'Västerås', 'Arvika', 'Grums', 'Kil', 'Karlstad', 'Kristinehamn', 'Hallstahammar', 'Köping', 'Arboga', 'Kolbäck', 'Bålsta', 'Kvicksund', 'Strängnäs', 'Eskilstuna', 'Läggesta', 'Flen', 'Nykvarn', 'Strömstad', 'Skee', 'Halden', 'Ed', 'Säffle', 'Åmål', 'Mellerud', 'Degerfors', 'Laxå', 'Örebro', 'ÖrebroS', 'Kumla', 'Kungsör', 'Hälleforsnäs', 'Vingåker', 'Tanum', 'Dingle', 'Töreboda', 'Skövde', 'Hallsberg', 'Motala', 'Skänninge', 'Katrineholm', 'Gnesta', 'Vagnhärad', 'Nyköping', 'Öxnered', 'Vänersborg', 'Vara', 'Trollhättan', 'Alingsås', 'Mjölby', 'Tranås', 'Linköping', 'Falköping', 'Norrköping', 'Kolmården', 'Vårgårda', 'Herrljunga', 'Borås', 'Limmared', 'Hestra', 'Gnosjö', 'Helsingborg', 'Kastrup', 'Göteborg', 'Varberg', 'Halmstad', 'Jönköping', 'Huskvarna', 'Nässjö', 'Värnamo', 'Alvesta', 'Älmhult', 'Hässleholm', 'Växjö', 'Hovmantorp', 'Lessebo', 'Emmaboda', 'Nybro', 'Kalmar', 'Köpenhamn', 'Lund', 'Malmö', 'Narvik', 'Rombak', 'Katterat', 'Sösterbekk', 'Björnfjell', 'Riksgränsen', 'Katterjåkk', 'Vassijaure', 'Låktatjåkka', 'Björkliden']
-destinations = ['Umeå','Insjön']
+destinations = ['Låktatjåkka', 'Björkliden']
+
+
+parser = argparse.ArgumentParser(description = "Get arguments")
+parser.add_argument("-f", "--from", type=str, help ="Starting point", default="Uppsala")
+parser.add_argument("-mintt","--mintravelt", type=str, help="Minimum travel time hh:mm", default="03:00")
+parser.add_argument("-maxtt","--maxtravelt", type=str, help="Maximum travel time hh:mm",default="05:00")
+parser.add_argument("-a1", "--age1", type=int, help="Age of passenger 1",default=22)
+parser.add_argument("-a2", "--age2", type=int, help="Age of passenger 2",default=24)
+parser.add_argument("-dd", "--deptdate", type=str, help="Departure day dd/mm", default="10/03")
+parser.add_argument("-rd", "--retdate", type=str, help="Return day dd/mm",default="10/04")
+
+p_args = parser.parse_args()
+
+#print(p_args.age1)
+
 starting_location = "Uppsala"
 for dest in destinations:
     if dest != starting_location:
         driver = webdriver.Safari()
+        #driver = webdriver.Chrome("/Users/Carolina/Web_scraper/chromedriver")
         #driver = webdriver.Firefox()
         driver.get('https://www.sj.se/sv/hem.html#/')
         #driver.maximize_window() # TODO: remove
@@ -86,7 +108,7 @@ for dest in destinations:
 
         while True:
             if departure_month_extended != month_departure_table:
-                driver.find_element_by_css_selector("#"+month_header_id[0]+" > div > div > div > div > div > div.picker__nav--next").click()
+                driver.find_element_by_xpath("//*[@id='"+month_header_id[0]+"']/div/div/div/div/div/div[4]").click()
 
                 table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
                 month_departure_table = table_month1[0].text
@@ -111,13 +133,12 @@ for dest in destinations:
         #### change month on the return table
         while True:
             if return_month_extended != month_return_table:
-                driver.find_element_by_css_selector("#"+month_header_id[1]+" > div > div > div > div > div > div.picker__nav--next").click()
+                driver.find_element_by_xpath("//*[@id='"+month_header_id[1]+"']/div/div/div/div/div/div[4]").click()
 
                 table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
                 month_return_table = table_month2[0].text
             else:
                 break
-
 
         #### Change the day for the returning train
         element_to_click2 = "//*[@id='"+tables_id[1]+"']//button[text()='"+ return_day+"' and @class='picker__day picker__day--infocus']"
@@ -223,7 +244,8 @@ for dest in destinations:
         arr = scraper(driver, dest)
 
         total_array = np.vstack((total_array,arr))
+        #print(total_array)
 
-        driver.quit()
+        #driver.quit()
 
-show_results(total_array,starting_location,"05:00")
+show_results(total_array,starting_location,"03:00", "05:00")

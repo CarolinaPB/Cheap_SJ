@@ -103,6 +103,7 @@ def scraper(driver, destination):
 
     html = driver.page_source
     soup = bs.BeautifulSoup(html, "lxml")
+    driver.quit()
 
     departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope", "departure")
 
@@ -123,18 +124,14 @@ def get_top_results(arr,min_travel, max_travel):
     min_travel= int(min_travel)
     max_travel = max_travel.replace(":","")
     max_travel= int(max_travel)
-    #print("min "+str(min_travel))
-    #print("max "+str(max_travel))
     nrows = len(arr)
     rows_to_remove=[]
     for i in range(nrows):
         dept_travel_time= int(arr[i][1][2])
-        #print("dept"+str(dept_travel_time))
         arr_travel_time = int(arr[i][2][2])
-        #print("arr"+str(arr_travel_time))
-        #if min_travel>dept_travel_time>max_travel and min_travel>arr_travel_time>max_travel :
-        if dept_travel_time>max_travel and arr_travel_time>max_travel:
-            #print(str(min_travel)+">"+str(dept_travel_time)+">"+str(max_travel))
+        if max_travel>=dept_travel_time>=min_travel and max_travel>=arr_travel_time>=min_travel:
+            pass
+        else:
             rows_to_remove.append(i)
     filtered_arr = np.delete(arr,rows_to_remove,axis=0)
     return (filtered_arr)
@@ -150,14 +147,15 @@ def show_results(arr,start_point, min_travel, max_travel):
         file.write("Maximum travel time: "+max_travel+"\n\n")
         nrows=len(top)
         for i in range(nrows):
-            file.write("Destination: "+top[i][0]+"\n")
+            file.write("########     "+top[i][0]+"     ########"+"\n")
+            file.write("Total price: "+str(top[i][3])+"\n")
             file.write("Travel hours: ")
             file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
+            file.write("--------------------------------\n")
             file.write("Departure"+"\n")
             file.write("Travel time: "+top[i][1][2]+"\n")
-            file.write("Price: "+str(top[i][1][4])+"\n")
+            file.write("Price: "+str(top[i][1][4])+" SEK"+"\n")
             file.write("Return"+"\n")
             file.write("Travel time: "+top[i][2][2]+"\n")
-            file.write("Price: "+str(top[i][2][4])+"\n")
-            file.write("Total price: "+str(top[i][3])+"\n")
+            file.write("Price: "+str(top[i][2][4])+" SEK"+"\n")
             file.write("\n")
