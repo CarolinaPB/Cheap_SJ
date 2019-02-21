@@ -23,6 +23,8 @@ def create_table(soup,table_class, trip):
 
     operator = page_table.find_all('div', {'class':'timetable__extra-info-icon'})
 
+    n_changes = page_table.find_all('span', {'class':'timetable-cell timetable__extra-info timetable__extra-info--changes ng-binding'})
+
     nrows = len(travel_hours)
     ncols = 5
     arr = np.empty((nrows, ncols), dtype=object)
@@ -48,15 +50,15 @@ def create_table(soup,table_class, trip):
 
         arr[i][2] = travel_t[i].replace(" h", "").replace(":","")
 
-        op = operator[i].text.replace("\n","").strip()
-        if "+0" in op:
-            op = op.replace("+0","")
-        arr[i][3] = op
+        #op = operator[i].text.replace("\n","").strip()
+        #if "+0" in op:
+        #    op = op.replace("+0","")
+        #arr[i][3] = op
+        nc1 = n_changes[i].text.replace("\n","").strip().replace(" ","")
+        nc2 = re.sub('[^0-9]','', nc1) #remove non numeric characters from string
+        arr[i][3] = nc2
 
-        price = prices[i].text.replace("\n","").strip()
-        price = price.replace("fr.","")
-        price = price.split(":")[0]
-        price = price.replace(" ","")
+        price = prices[i].text.replace("\n","").strip().replace("fr.","").split(":")[0].replace(" ","")
         try:
             int(price)
             price=int(price)
@@ -126,6 +128,7 @@ def get_top_results(arr,min_travel, max_travel):
     max_travel= int(max_travel)
     nrows = len(arr)
     rows_to_remove=[]
+    rows_to_remove2=[]
     for i in range(nrows):
         dept_travel_time= int(arr[i][1][2])
         arr_travel_time = int(arr[i][2][2])
@@ -134,28 +137,49 @@ def get_top_results(arr,min_travel, max_travel):
         else:
             rows_to_remove.append(i)
     filtered_arr = np.delete(arr,rows_to_remove,axis=0)
-    return (filtered_arr)
 
-def show_results(arr,start_point, min_travel, max_travel):
+    nrows2 = len(filtered_arr)
+    for i in range(nrows2):
+        if int(filtered_arr[i][1][3])<=1 and int(filtered_arr[i][2][3])<=1:
+            pass
+        else:
+            rows_to_remove2.append(i)
+    filtered_arr2 = np.delete(filtered_arr,rows_to_remove2,axis=0)
+
+    return (filtered_arr2)
+
+def show_results(arr,start_point, min_travel, max_travel, departure_date, return_date, nstudents):
     by_price = ordered_by_price(arr)
 
     top = get_top_results(by_price,min_travel, max_travel)
 
     file_name = "output_"+start_point+"_"+min_travel+"-"+max_travel+".txt"
     with open(file_name,"w") as file:
+        file.write("Travelling from {} to {}\n".format(departure_date, return_date))
+        file.write("Starting place: {}\n".format(start_point))
+        file.write("Number of students: {}\n".format(nstudents))
         file.write("Minium travel time: "+min_travel+"\n")
-        file.write("Maximum travel time: "+max_travel+"\n\n")
+        file.write("Maximum travel time: "+max_travel+"\n\n\n")
         nrows=len(top)
         for i in range(nrows):
-            file.write("########     "+top[i][0]+"     ########"+"\n")
-            file.write("Total price: "+str(top[i][3])+"\n")
-            file.write("Travel hours: ")
-            file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
-            file.write("--------------------------------\n")
-            file.write("Departure"+"\n")
-            file.write("Travel time: "+top[i][1][2]+"\n")
-            file.write("Price: "+str(top[i][1][4])+" SEK"+"\n")
-            file.write("Return"+"\n")
-            file.write("Travel time: "+top[i][2][2]+"\n")
-            file.write("Price: "+str(top[i][2][4])+" SEK"+"\n")
-            file.write("\n")
+            file.write("-----------------------\n")
+            file.write("          {}            \n".format(top[i][0].upper()))
+            file.write("Total price: {} SEK\n".format(top[i][3]*nstudents))
+            file.write("Departure:   {}h{}-{}h{}\n".format(top[i][1][0][:2],top[i][1][0][2:],top[i][1][1][:2], top[i][1][1][2:]))
+            file.write("Return:      {}h{}-{}h{}\n\n".format(top[i][2][0][:2],top[i][2][0][2:],top[i][2][1][:2], top[i][2][1][2:]))
+            #file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
+
+            file.write("        Departure\n")
+            t_time1 = top[i][1][2][-2:]
+            t_time2 = top[i][1][2].replace(t_time1,"")
+            file.write("Travel time: {}h{}\n".format(t_time2, t_time1))
+            file.write("Price:       {} SEK\n".format(top[i][1][4]*nstudents))
+            file.write("N tranfers:  {}\n\n".format(top[i][1][3]))
+            file.write("         Return\n")
+            t_time1 = top[i][2][2][-2:]
+            t_time2 = top[i][2][2].replace(t_time1,"")
+            file.write("Travel time: {}h{}\n".format(t_time2, t_time1))
+            file.write("Price:       {} SEK\n".format(top[i][2][4]*nstudents))
+            file.write("N transfers:  {}\n".format(top[i][2][3]))
+            file.write("-----------------------")
+            file.write("\n\n\n")

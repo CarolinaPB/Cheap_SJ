@@ -19,17 +19,17 @@ CROMEDRIVER_PATH ="/Users/Carolina/Web_scraper/chromedriver"##
 
 total_array = np.array(("Destination","dept_info","arr_info","Price"), dtype=object)
 
-#destinations=dest
-
-destinations = ['Låktatjåkka', 'Björkliden']
+destinations=dest
+#destinations=["Mora", "Fagersta", "Sundsvall", "Rättvik"]
 
 
 parser = argparse.ArgumentParser(description = "Get arguments")
 parser.add_argument("-f", "--from", type=str, help ="Starting point", default="Uppsala")
 parser.add_argument("-mintt","--mintravelt", type=str, help="Minimum travel time hh:mm", default="03:00")
 parser.add_argument("-maxtt","--maxtravelt", type=str, help="Maximum travel time hh:mm",default="05:00")
-parser.add_argument("-a1", "--age1", type=int, help="Age of passenger 1",default=22)
-parser.add_argument("-a2", "--age2", type=int, help="Age of passenger 2",default=24)
+#parser.add_argument("-a1", "--age1", type=int, help="Age of passenger 1",default=22)
+#parser.add_argument("-a2", "--age2", type=int, help="Age of passenger 2",default=24)
+parser.add_argument("-ns", "--nstudents", type=int, help="Number of students",default=2)
 parser.add_argument("-dd", "--deptdate", type=str, help="Departure day dd/mm", default="10/03")
 parser.add_argument("-rd", "--retdate", type=str, help="Return day dd/mm",default="10/04")
 
@@ -72,8 +72,8 @@ for dest in destinations:
         res = driver.execute_script("return document.documentElement.outerHTML")
         soup = bs.BeautifulSoup(res,'lxml')
 
-        departure_date = "10/03"
-        return_date = "20/04"
+        departure_date = "23/03"
+        return_date = "24/03"
 
         #### gets ids for the two date tables
         tables = driver.find_elements_by_class_name("picker__table")
@@ -196,16 +196,17 @@ for dest in destinations:
         # click the age
         li[age_dict[age1-1]].click()
 
-        add_passenger = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'addPassengerGroup')))
+        #add_passenger = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'addPassengerGroup')))
 
         # click the dropdown button
-        add_passenger.click()
+        #add_passenger.click()
 
-        li2 = dropdown.parent.find_elements_by_xpath('//*[@id="addPassengerGroup"]//option')
-        li2[3].click() #selects student
+        #time.sleep(0.1)
+        #li2 = dropdown.parent.find_elements_by_xpath('//*[@id="addPassengerGroup"]//option')
+        #li2[3].click() #selects student
 
-        passenger2_age = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"])[2]/option')
-        passenger2_age[age_dict[age2-1]].click()
+        #passenger2_age = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"])[2]/option')
+        #passenger2_age[age_dict[age2-1]].click()
 
         ### submit and go to next page
         driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
@@ -248,4 +249,5 @@ for dest in destinations:
 
         #driver.quit()
 
-show_results(total_array,starting_location,"03:00", "05:00")
+nstudents = 2
+show_results(total_array,starting_location,"03:00", "05:00",departure_date, return_date, nstudents)
