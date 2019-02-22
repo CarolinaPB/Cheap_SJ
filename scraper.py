@@ -8,9 +8,10 @@ import re
 
 def create_table(soup,table_class, trip):
     '''
-    Creates a table with hour of departure, of arrival to destination, travel time, if only SJ or if there are other companies involved and price
-    If any of the rows has a null value, that row is removed from the table
+    Creates a table with hour of departure, of arrival to destination, travel time, number of transfers and price
+    If any of the rows has a null value, that row is removed from the table (for example, if one of the trips doesn't have a price available)
     '''
+
     page_table = soup.find("div", {"class":table_class})
     travel_hours = page_table.find_all("div", "timetable__time-info timetable__time-info--small guttered--quarter-vertically ng-binding")
 
@@ -50,10 +51,6 @@ def create_table(soup,table_class, trip):
 
         arr[i][2] = travel_t[i].replace(" h", "").replace(":","")
 
-        #op = operator[i].text.replace("\n","").strip()
-        #if "+0" in op:
-        #    op = op.replace("+0","")
-        #arr[i][3] = op
         nc1 = n_changes[i].text.replace("\n","").strip().replace(" ","")
         nc2 = re.sub('[^0-9]','', nc1) #remove non numeric characters from string
         arr[i][3] = nc2
@@ -75,9 +72,13 @@ def create_table(soup,table_class, trip):
     return(arr)
 
 def find_top_cheapest(departure_table, arrival_table, destination):
+    '''
+    gets the top 5 (or less if less are available) cheapest  for the current location
+    '''
     nrows=len(departure_table)*len(arrival_table)
     arr = np.empty((nrows, 4), dtype=object)
 
+    #### pairs all the combinations of departures and returns together
     n=0
     for dept_el in departure_table:
         for arrv_el in arrival_table:
@@ -87,6 +88,7 @@ def find_top_cheapest(departure_table, arrival_table, destination):
             arr[n][3] = dept_el[4]+arrv_el[4] #total price
             n+=1
 
+    #### sorts the array of combinations by total price
     ind = np.argsort(arr[:,-1])
     arr_sorted_by_price = arr[ind]
 
@@ -101,7 +103,7 @@ def find_top_cheapest(departure_table, arrival_table, destination):
 
 def scraper(driver, destination):
 
-    time.sleep(5)
+    time.sleep(1)
 
     html = driver.page_source
     soup = bs.BeautifulSoup(html, "lxml")
@@ -109,19 +111,25 @@ def scraper(driver, destination):
 
     departure_table = create_table(soup, "guttered--double-bottom guttered--mobile-bottom ng-isolate-scope", "departure")
 
-    arrival_table = (create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival"))
+    arrival_table = create_table(soup,"timetable-inbound guttered--double-bottom guttered--mobile-bottom ng-scope ng-isolate-scope", "arrival")
 
     top_table = find_top_cheapest(departure_table, arrival_table, destination)
 
     return(top_table)
 
 def ordered_by_price(arr):
+    '''
+    Orders the array with the information from all the destinations by price (cheapest to most expensive)
+    '''
     to_sort = arr[1:][:]
     ind = np.argsort(to_sort[:,-1])
     sorted_total_array = to_sort[ind]
     return(sorted_total_array)
 
-def get_top_results(arr,min_travel, max_travel):
+def get_top_results(arr,min_travel, max_travel, nchanges):
+    '''
+    Filters the results: only keeps the results where the travel time is within the limits imposed by the user and where the number of changes less than the maximum number of changes defined by the user.
+    '''
     min_travel = min_travel.replace(":","")
     min_travel= int(min_travel)
     max_travel = max_travel.replace(":","")
@@ -140,7 +148,7 @@ def get_top_results(arr,min_travel, max_travel):
 
     nrows2 = len(filtered_arr)
     for i in range(nrows2):
-        if int(filtered_arr[i][1][3])<=1 and int(filtered_arr[i][2][3])<=1:
+        if int(filtered_arr[i][1][3])<=nchanges and int(filtered_arr[i][2][3])<=nchanges:
             pass
         else:
             rows_to_remove2.append(i)
@@ -148,12 +156,15 @@ def get_top_results(arr,min_travel, max_travel):
 
     return (filtered_arr2)
 
-def show_results(arr,start_point, min_travel, max_travel, departure_date, return_date, nstudents):
+def show_results(arr,start_point, min_travel, max_travel, departure_date, return_date, nstudents, nchanges):
+    '''
+    Writes the output file
+    '''
+
     by_price = ordered_by_price(arr)
+    top = get_top_results(by_price,min_travel, max_travel, nchanges)
 
-    top = get_top_results(by_price,min_travel, max_travel)
-
-    file_name = "output_"+start_point+"_"+min_travel+"-"+max_travel+".txt"
+    file_name = "WhereToGo_from_"+start_point+".txt"
     with open(file_name,"w") as file:
         file.write("Travelling from {} to {}\n".format(departure_date, return_date))
         file.write("Starting place: {}\n".format(start_point))
@@ -167,8 +178,6 @@ def show_results(arr,start_point, min_travel, max_travel, departure_date, return
             file.write("Total price: {} SEK\n".format(top[i][3]*nstudents))
             file.write("Departure:   {}h{}-{}h{}\n".format(top[i][1][0][:2],top[i][1][0][2:],top[i][1][1][:2], top[i][1][1][2:]))
             file.write("Return:      {}h{}-{}h{}\n\n".format(top[i][2][0][:2],top[i][2][0][2:],top[i][2][1][:2], top[i][2][1][2:]))
-            #file.write(top[i][1][0]+"-"+top[i][1][1]+"\n")
-
             file.write("        Departure\n")
             t_time1 = top[i][1][2][-2:]
             t_time2 = top[i][1][2].replace(t_time1,"")

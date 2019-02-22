@@ -9,51 +9,53 @@ from selenium.webdriver.chrome.options import Options ##
 import bs4 as bs
 import urllib.request
 import argparse
-from scraper import scraper, ordered_by_price, get_top_results, show_results
 import time
 import numpy as np
+from scraper import scraper, ordered_by_price, get_top_results, show_results
 from location_list import dest
 
-CHROME_PATH = "/usr/bin/google-chrome" ##
-CROMEDRIVER_PATH ="/Users/Carolina/Web_scraper/chromedriver"##
+#CHROME_PATH = "/usr/bin/google-chrome" ##
+#CROMEDRIVER_PATH ="/Users/Carolina/Web_scraper/chromedriver"##
 
 total_array = np.array(("Destination","dept_info","arr_info","Price"), dtype=object)
 
-destinations=dest
-#destinations=["Mora", "Fagersta", "Sundsvall", "Rättvik"]
+destinations=["Mora"]
 
 
 parser = argparse.ArgumentParser(description = "Get arguments")
-parser.add_argument("-f", "--from", type=str, help ="Starting point", default="Uppsala")
+parser.add_argument("-f", "--from_place", type=str, help ="Starting point", default="Uppsala")
 parser.add_argument("-mintt","--mintravelt", type=str, help="Minimum travel time hh:mm", default="03:00")
 parser.add_argument("-maxtt","--maxtravelt", type=str, help="Maximum travel time hh:mm",default="05:00")
-#parser.add_argument("-a1", "--age1", type=int, help="Age of passenger 1",default=22)
-#parser.add_argument("-a2", "--age2", type=int, help="Age of passenger 2",default=24)
 parser.add_argument("-ns", "--nstudents", type=int, help="Number of students",default=2)
 parser.add_argument("-dd", "--deptdate", type=str, help="Departure day dd/mm", default="10/03")
 parser.add_argument("-rd", "--retdate", type=str, help="Return day dd/mm",default="10/04")
+parser.add_argument("-nc", "--max_nchanges", type=int, help="Maximum number of transfers allowed",default=1)
 
-p_args = parser.parse_args()
+args = parser.parse_args()
 
-#print(p_args.age1)
+starting_location = args.from_place
+min_travel = args.mintravelt
+max_travel = args.maxtravelt
+nstudents = args.nstudents
+departure_date = args.deptdate
+return_date = args.retdate
+nchanges = args.max_nchanges
 
-starting_location = "Uppsala"
 for dest in destinations:
     if dest != starting_location:
+        #print(starting_location)
         driver = webdriver.Safari()
         #driver = webdriver.Chrome("/Users/Carolina/Web_scraper/chromedriver")
         #driver = webdriver.Firefox()
+        #driver = webdriver.Chrome()
         driver.get('https://www.sj.se/sv/hem.html#/')
-        #driver.maximize_window() # TODO: remove
 
-
-        from_location= driver.find_element_by_id("booking-departure")
+        #from_location= driver.find_element_by_id("booking-departure")
+        from_location = driver.find_element_by_xpath('//*[@id="booking-departure"]')
         from_location.send_keys(starting_location)
 
         destination_location = driver.find_element_by_id("booking-arrival")
-        #dest = destinations[10]
         destination_location.send_keys(dest)
-        #destination_location.send_keys("Stockholm")
         destination_location.send_keys(Keys.RETURN)
 
         for i in range(10):
@@ -67,13 +69,6 @@ for dest in destinations:
                 time.sleep(1)
         else:
             raise e
-
-
-        res = driver.execute_script("return document.documentElement.outerHTML")
-        soup = bs.BeautifulSoup(res,'lxml')
-
-        departure_date = "23/03"
-        return_date = "24/03"
 
         #### gets ids for the two date tables
         tables = driver.find_elements_by_class_name("picker__table")
@@ -107,12 +102,11 @@ for dest in destinations:
         #### if the inputed month is not the current month, it will change the calendar to the desired month
 
         while True:
-            if departure_month_extended != month_departure_table:
+            if departure_month_extended.upper() != month_departure_table.upper():
                 driver.find_element_by_xpath("//*[@id='"+month_header_id[0]+"']/div/div/div/div/div/div[4]").click()
 
                 table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div/div/div/div/div/div[1]')
                 month_departure_table = table_month1[0].text
-
             else:
                 break
 
@@ -132,7 +126,7 @@ for dest in destinations:
 
         #### change month on the return table
         while True:
-            if return_month_extended != month_return_table:
+            if return_month_extended.upper() != month_return_table.upper():
                 driver.find_element_by_xpath("//*[@id='"+month_header_id[1]+"']/div/div/div/div/div/div[4]").click()
 
                 table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div/div/div/div/div/div[1]')
@@ -178,7 +172,6 @@ for dest in destinations:
 
         #### choose age of first passengers
         age1 = 24
-        age2 = 22
         dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerAge')))
 
         # click the dropdown button
@@ -196,20 +189,10 @@ for dest in destinations:
         # click the age
         li[age_dict[age1-1]].click()
 
-        #add_passenger = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'addPassengerGroup')))
-
-        # click the dropdown button
-        #add_passenger.click()
-
-        #time.sleep(0.1)
-        #li2 = dropdown.parent.find_elements_by_xpath('//*[@id="addPassengerGroup"]//option')
-        #li2[3].click() #selects student
-
-        #passenger2_age = dropdown.parent.find_elements_by_xpath('(//*[@id="passengerAge"])[2]/option')
-        #passenger2_age[age_dict[age2-1]].click()
 
         ### submit and go to next page
         driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
+        #driver.find_element_by_xpath("/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
 
         #### ON THE RESULTS PAGE ####
 
@@ -227,7 +210,6 @@ for dest in destinations:
                     more_travel=driver.find_elements_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a")
                 except WebDriverException:
                     t =False
-                    #break
 
         #### show all the times available bot return
         more_travel2 = driver.find_elements_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a")
@@ -239,15 +221,10 @@ for dest in destinations:
                     more_travel=driver.find_elements_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a")
                 except WebDriverException:
                     t =False
-                    #break
 
 
         arr = scraper(driver, dest)
 
         total_array = np.vstack((total_array,arr))
-        #print(total_array)
 
-        #driver.quit()
-
-nstudents = 2
-show_results(total_array,starting_location,"03:00", "05:00",departure_date, return_date, nstudents)
+show_results(total_array,starting_location,min_travel, max_travel,departure_date, return_date, nstudents, nchanges)
