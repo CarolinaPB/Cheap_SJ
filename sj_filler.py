@@ -10,6 +10,7 @@ import bs4 as bs
 import urllib.request
 import argparse
 import time
+import datetime
 import numpy as np
 from scraper import scraper, ordered_by_price, get_top_results, show_results
 from location_list import dest
@@ -41,8 +42,23 @@ departure_date = args.deptdate
 return_date = args.retdate
 nchanges = args.max_nchanges
 
+#### checks if the dates chosen are valid
+current_date = datetime.date.today()
+current_day = current_date.day
+current_month = current_date.month
+dep_day, dep_month = departure_date.split("/")
+ret_day, ret_month = return_date.split("/")
+ok_date = False
+
+if int(ret_month) and int(dep_month) >= current_month:
+    if dep_month== ret_month:
+        if int(ret_day)>= int(dep_day):
+            ok_date=True
+    else:
+        ok_date=True
+
 for dest in destinations:
-    if dest != starting_location:
+    if dest != starting_location and ok_date:
         #print(starting_location)
         driver = webdriver.Safari()
         #driver = webdriver.Chrome("/Users/Carolina/Web_scraper/chromedriver")
@@ -227,4 +243,10 @@ for dest in destinations:
 
         total_array = np.vstack((total_array,arr))
 
-show_results(total_array,starting_location,min_travel, max_travel,departure_date, return_date, nstudents, nchanges)
+try:
+    if ok_date:
+        show_results(total_array,starting_location,min_travel, max_travel,departure_date, return_date, nstudents, nchanges)
+    else:
+        raise Exception("Date is not valid")
+except Exception as e:
+    print(e)
