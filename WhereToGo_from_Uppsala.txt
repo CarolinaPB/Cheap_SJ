@@ -1,0 +1,97 @@
+Travelling from 10/04 to 10/05
+Starting place: Uppsala
+Number of students: 2
+Minium travel time: 01:00
+Maximum travel time: 05:00
+
+
+-----------------------
+          MORA            
+Total price: 612 SEK
+Departure:   10h25-13h36
+Return:      16h24-19h34
+
+        Departure
+Travel time: 3h11
+Price:       366 SEK
+N tranfers:  0
+
+         Return
+Travel time: 3h10
+Price:       246 SEK
+N transfers:  1
+-----------------------
+
+
+-----------------------
+          MORA            
+Total price: 612 SEK
+Departure:   10h25-13h36
+Return:      18h23-21h34
+
+        Departure
+Travel time: 3h11
+Price:       366 SEK
+N tranfers:  0
+
+         Return
+Travel time: 3h11
+Price:       246 SEK
+N transfers:  1
+-----------------------
+
+
+-----------------------
+          MORA            
+Total price: 630 SEK
+Departure:   11h55-15h38
+Return:      18h23-21h34
+
+        Departure
+Travel time: 3h43
+Price:       384 SEK
+N tranfers:  1
+
+         Return
+Travel time: 3h11
+Price:       246 SEK
+N transfers:  1
+-----------------------
+
+
+-----------------------
+          MORA            
+Total price: 630 SEK
+Departure:   08h25-11h30
+Return:      16h24-19h34
+
+        Departure
+Travel time: 3h05
+Price:       384 SEK
+N tranfers:  1
+
+         Return
+Travel time: 3h10
+Price:       246 SEK
+N transfers:  1
+-----------------------
+
+
+-----------------------
+          MORA            
+Total price: 630 SEK
+Departure:   11h55-15h38
+Return:      16h24-19h34
+
+        Departure
+Travel time: 3h43
+Price:       384 SEK
+N tranfers:  1
+
+         Return
+Travel time: 3h10
+Price:       246 SEK
+N transfers:  1
+-----------------------
+
+
