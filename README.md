@@ -44,3 +44,5 @@ Argument | Input | Default | Description |
 -mintt | hh:mm | 02:00 | Minimum travel time
 -maxtt | hh:mm | 05:00 | Minimum travel time
 -nc | int | 1 | Maximum number of transfers
+
+Chrome is the recommended browser
