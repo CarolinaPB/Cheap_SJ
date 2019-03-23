@@ -24,7 +24,7 @@ destinations=["Mora", "Gävle"]
 
 parser = argparse.ArgumentParser(description="Get arguments")
 parser.add_argument("-f", "--from_place", type=str, help="Starting point", default="Uppsala")
-parser.add_argument("-mintt", "--mintravelt", type=str, help="Minimum travel time hh:mm", default="01:00")
+parser.add_argument("-mintt", "--mintravelt", type=str, help="Minimum travel time hh:mm", default="02:00")
 parser.add_argument("-maxtt", "--maxtravelt", type=str, help="Maximum travel time hh:mm", default="05:00")
 parser.add_argument("-ns", "--nstudents", type=int, help="Number of students", default=2)
 parser.add_argument("-dd", "--deptdate", type=str, help="Departure day dd/mm", default="10/04")
@@ -232,7 +232,7 @@ for dest in destinations:
             continue_btn = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
             continue_btn.click()
 
-            more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a')))
+            more_travel = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a')))
 
             t = True
             while t:
