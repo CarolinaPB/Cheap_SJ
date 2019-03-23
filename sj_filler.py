@@ -18,9 +18,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from location_list import dest
 from scraper import get_top_results, ordered_by_price, scraper, show_results
 
-import time
-start = time.time()
-
 total_array = np.array(("Destination", "dept_info", "arr_info", "Price"), dtype=object)
 
 #destinations = dest
@@ -286,6 +283,3 @@ try:
         raise Exception("Date is not valid")
 except Exception as e:
     print(e)
-
-end = time.time()
-print(end - start)
