@@ -11,6 +11,7 @@ from selenium.common.exceptions import (NoSuchElementException,
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -20,7 +21,7 @@ from scraper import get_top_results, ordered_by_price, scraper, show_results
 total_array = np.array(("Destination", "dept_info", "arr_info", "Price"), dtype=object)
 
 #destinations = dest
-destinations=["Mora", "Gävle"]
+destinations = ["Mora", "Gävle"]
 
 parser = argparse.ArgumentParser(description="Get arguments")
 parser.add_argument("-f", "--from_place", type=str, help="Starting point", default="Uppsala")
@@ -65,13 +66,16 @@ for dest in destinations:
             driver = webdriver.Safari()
         elif browser == "CHROME":
             chrome_options = Options()
-            chrome_options.add_argument("--window-size=1920,1080");
-            chrome_options.add_argument("--start-maximized");
-            chrome_options.add_argument("--headless");
+            chrome_options.add_argument("--window-size=1920,1080")
+            chrome_options.add_argument("--start-maximized")
+            chrome_options.add_argument("--headless")
             driver = webdriver.Chrome(options=chrome_options)
             #driver = webdriver.Chrome()
         elif browser == "FIREFOX":
-            driver = webdriver.Firefox()
+            options = Options()
+            options.headless = True
+            driver = webdriver.Firefox(options=options)
+            # driver = webdriver.Firefox()
         driver.get('https://www.sj.se/sv/hem.html#/')
 
         from_location = driver.find_element_by_xpath('//*[@id="booking-departure"]')
@@ -204,7 +208,7 @@ for dest in destinations:
         li[age_dict[age1 - 1]].click()
 
         # submit and go to next page
-        if browser == "SAFARI" or browser == "FIREFOX":
+        if browser == "SAFARI":
             driver.find_element_by_xpath("/html/body/div[2]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button").click()
 
             time.sleep(5)
@@ -254,9 +258,25 @@ for dest in destinations:
                     except WebDriverException:
                         t = False
 
+        elif browser == "FIREFOX":
+            continue_btn = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
+            continue_btn.click()
+
+            more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
+
+            t = True
+            while t:
+                if more_travel:
+                    try:
+                        more_travel.click()
+                        more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
+                    except WebDriverException:
+                        t = False
+
         arr = scraper(driver, dest)
 
         total_array = np.vstack((total_array, arr))
+
 
 try:
     if ok_date:
