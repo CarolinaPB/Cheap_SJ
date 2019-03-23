@@ -12,7 +12,7 @@ You'll need to install:
 * lxml
 * numpy
 Depending on which browser you want to run it:
-* chromedriver ([page](http://chromedriver.chromium.org)
+* chromedriver ([page](http://chromedriver.chromium.org))
 * geckodriver
 * safaridriver ([Apple's help page](https://developer.apple.com/documentation/webkit/testing_with_webdriver_in_safari))
 
