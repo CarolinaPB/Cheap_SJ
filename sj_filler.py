@@ -11,12 +11,15 @@ from selenium.common.exceptions import (NoSuchElementException,
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.options import Options as firefox_Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from location_list import dest
 from scraper import get_top_results, ordered_by_price, scraper, show_results
+
+import time
+start = time.time()
 
 total_array = np.array(("Destination", "dept_info", "arr_info", "Price"), dtype=object)
 
@@ -66,13 +69,11 @@ for dest in destinations:
             driver = webdriver.Safari()
         elif browser == "CHROME":
             chrome_options = Options()
-            chrome_options.add_argument("--window-size=1920,1080")
-            chrome_options.add_argument("--start-maximized")
-            chrome_options.add_argument("--headless")
+            chrome_options.headless = True
             driver = webdriver.Chrome(options=chrome_options)
             #driver = webdriver.Chrome()
         elif browser == "FIREFOX":
-            options = Options()
+            options = firefox_Options()
             options.headless = True
             driver = webdriver.Firefox(options=options)
             # driver = webdriver.Firefox()
@@ -285,3 +286,6 @@ try:
         raise Exception("Date is not valid")
 except Exception as e:
     print(e)
+
+end = time.time()
+print(end - start)
