@@ -20,8 +20,8 @@ from scraper import get_top_results, ordered_by_price, scraper, show_results
 
 total_array = np.array(("Destination", "dept_info", "arr_info", "Price"), dtype=object)
 
-#destinations = dest
-destinations = ["Mora", "Gävle"]
+destinations = dest
+#destinations = ["Mora", "Gävle"]
 
 parser = argparse.ArgumentParser(description="Get arguments")
 parser.add_argument("-f", "--from_place", type=str, help="Starting point", default="Uppsala")
@@ -31,7 +31,7 @@ parser.add_argument("-ns", "--nstudents", type=int, help="Number of students", d
 parser.add_argument("-dd", "--deptdate", type=str, help="Departure day dd/mm", default="10/04")
 parser.add_argument("-rd", "--retdate", type=str, help="Return day dd/mm", default="10/05")
 parser.add_argument("-nc", "--max_nchanges", type=int, help="Maximum number of transfers allowed", default=1)
-parser.add_argument("-brw", "--browser", type=str, help="Browser to be used (Safari, Chrome or Firefox)", default="Safari")
+parser.add_argument("-brw", "--browser", type=str, help="Browser to be used (Safari, Chrome or Firefox)", default="chrome")
 
 args = parser.parse_args()
 
