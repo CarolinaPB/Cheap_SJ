@@ -36,7 +36,8 @@ def create_table(soup, table_class, trip):
         if trip == "departure":
             h1 = hours[:4]
             h2 = hours[7:]
-            if int(h1) <= 1300 and int(h1) >= 700:
+            #if int(h1) <= 1300 and int(h1) >= 700:
+            if int(h1) <= 2400 and int(h1) >= 1759:
                 arr[i][0] = h1
                 arr[i][1] = h2
 
