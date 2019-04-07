@@ -46,3 +46,6 @@ Argument | Input | Default | Description |
 -nc | int | 1 | Maximum number of transfers
 
 Chrome is the recommended browser
+
+## Known issues
+Running the program without adding -brw Chrome doesn't seem to work
