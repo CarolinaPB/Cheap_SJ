@@ -17,14 +17,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from location_list import dest
 from scraper import get_top_results, ordered_by_price, scraper, show_results
-import time
-
-#start = time.time()
 
 total_array = np.array(("Destination", "dept_info", "arr_info", "Price"), dtype=object)
 
 destinations = dest
-#destinations = ["Mora", "Gävle", "Leksand","Västerås", "Östersund"]
+#destinations = ["Mora", "Gävle"]
 
 parser = argparse.ArgumentParser(description="Get arguments")
 parser.add_argument("-f", "--from_place", type=str, help="Starting point", default="Uppsala")
@@ -78,7 +75,6 @@ for dest in destinations:
             driver = webdriver.Firefox(options=options)
             # driver = webdriver.Firefox()
         driver.get('https://www.sj.se/sv/hem.html#/')
-        wait = WebDriverWait(driver, 2)
 
         from_location = driver.find_element_by_xpath('//*[@id="booking-departure"]')
         from_location.send_keys(starting_location)
@@ -138,6 +134,7 @@ for dest in destinations:
         # Change the day for the departure train
         element_to_click = "//*[@id='" + tables_id[0] + "']//button[text()='" + departure_day + "' and @class='picker__day picker__day--infocus']"
 
+        wait = WebDriverWait(driver, 2)
         wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
 
         table_month2 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[1] + '"]/div/div/div/div/div/div[1]')
@@ -160,26 +157,25 @@ for dest in destinations:
         # Change the day for the returning train
         element_to_click2 = "//*[@id='" + tables_id[1] + "']//button[text()='" + return_day + "' and @class='picker__day picker__day--infocus']"
 
+        wait = WebDriverWait(driver, 2)
         wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click2))).click()
 
         # choose to search from the earliest departure time possible
-        dropdown = wait.until(EC.presence_of_element_located((By.ID, 'timeOptionsDeparture')))
+        dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'timeOptionsDeparture')))
         dropdown.click()
 
-        #departure_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsDeparture"]/option[@value="0700"]')
         departure_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsDeparture"]//option')
         departure_time[0].click()
 
         # choose to search from the earliest return time possible
-        dropdown = wait.until(EC.presence_of_element_located((By.ID, 'timeOptionsArrival')))
+        dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'timeOptionsArrival')))
         dropdown.click()
 
-        #return_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsArrival"]/option[@value="1700"]')
         return_time = dropdown.parent.find_elements_by_xpath('//*[@id="timeOptionsArrival"]//option')
         return_time[0].click()
 
         # expand dropdown and choose traveler category (student)
-        dropdown = wait.until(EC.presence_of_element_located((By.ID, 'passengerType0')))
+        dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.ID, 'passengerType0')))
 
         # click the dropdown button
         dropdown.click()
@@ -193,7 +189,7 @@ for dest in destinations:
 
         # choose age of first passengers
         age1 = 24
-        dropdown = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@class="ng-scope ng-pristine ng-invalid ng-invalid-required"]')))
+        dropdown = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '//*[@class="ng-scope ng-pristine ng-invalid ng-invalid-required"]')))
 
         dropdown.click()
 
@@ -235,7 +231,7 @@ for dest in destinations:
                     except WebDriverException:
                         t = False
         elif browser == "CHROME":
-            continue_btn = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
+            continue_btn = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
             continue_btn.click()
 
             more_travel = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a')))
@@ -245,33 +241,33 @@ for dest in destinations:
                 if more_travel:
                     try:
                         more_travel.click()
-                        more_travel = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a')))
+                        more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[1]/div[5]/div[4]/div/a')))
                     except WebDriverException:
                         t = False
 
             # show all the times available bot return
-            more_travel2 = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a')))
+            more_travel2 = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a')))
             t = True
             while t:
                 if more_travel2:
                     try:
                         more_travel2.click()
-                        more_travel2 = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a')))
+                        more_travel2 = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[1]/div[3]/div[1]/div/div[2]/div[5]/div[4]/div/a')))
                     except WebDriverException:
                         t = False
 
         elif browser == "FIREFOX":
-            continue_btn = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
+            continue_btn = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div/div[2]/div/main/div[1]/div/div/div/div[2]/div/div/div[3]/div[1]/div/div/div/div[3]/button')))
             continue_btn.click()
 
-            more_travel = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
+            more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
 
             t = True
             while t:
                 if more_travel:
                     try:
                         more_travel.click()
-                        more_travel = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
+                        more_travel = WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html.modernizr-js.modernizr-no-touch.modernizr-localstorage.vngage-csstransforms.vngage-csstransitions body.sv.ng-scope.ng-isolate-scope div.resolving-spinner-container div.sj-frame__table div.sj-frame__table-row.sj-frame__table-row--content div.container-fluid.sj-content-wrap.main-content.no-gutter--horizontally.sj-frame__table-cell main div.booking div.sj-booking__container div.sj-booking div.ng-scope div.ng-scope div.container.timetable__container div.row div.col-xs-12.col-md-10.col-md-offset-1 div.guttered--double-bottom.guttered--mobile-bottom.ng-isolate-scope div.timetable__table div.timetable__footer.timetable__row div.timetable-cell.timetable-header__navigation-footer a.timetable__navigation-container.timetable__link-hover-state.ng-scope')))
                     except WebDriverException:
                         t = False
 
@@ -287,6 +283,3 @@ try:
         raise Exception("Date is not valid")
 except Exception as e:
     print(e)
-
-# end = time.time()
-# print(end - start)
