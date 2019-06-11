@@ -100,18 +100,30 @@ for dest in destinations:
             raise e
 
         # gets ids for the two date tables
-        tables = driver.find_elements_by_class_name("picker__table")
+        #tables = driver.find_elements_by_class_name("ab-datepicker-container")
+        tables = driver.find_elements_by_class_name("datepicker-calendar--booking")
+
+        #print(tables)
         tables_id = []
         for t in tables:
-            tables_id.append(t.get_attribute("id"))
+            if t.get_attribute("id"):
+                tables_id.append(t.get_attribute("id"))
+
+        #print(tables_id)
+
+
 
         month_header_id = []
         for el in tables_id:
             month_header_id.append(el.replace("table", "root"))
 
         # correct month
-        table_month1 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[0] + '"]/div/div/div/div/div/div[1]')
-        table_month2 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[1] + '"]/div/div/div/div/div/div[1]')
+        table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div[1]/h2/span[2]')
+        #table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div[1]/h2/span[2]')
+
+        #print("table month_____")
+        #print(table_month1)
+        #print(table_month2)
 
         month_departure_table = table_month1[0].text
 
@@ -128,19 +140,21 @@ for dest in destinations:
 
         while True:
             if departure_month_extended.upper() != month_departure_table.upper():
-                driver.find_element_by_xpath("//*[@id='" + month_header_id[0] + "']/div/div/div/div/div/div[4]").click()
+                driver.find_element_by_xpath("//*[@id='" + month_header_id[0] + "']/div[1]/button[2]").click()
 
-                table_month1 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[0] + '"]/div/div/div/div/div/div[1]')
+                table_month1 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[0]+'"]/div[1]/h2/span[2]')
                 month_departure_table = table_month1[0].text
             else:
                 break
 
         # Change the day for the departure train
-        element_to_click = "//*[@id='" + tables_id[0] + "']//button[text()='" + departure_day + "' and @class='picker__day picker__day--infocus']"
+        day_to_click = tables_id[0].replace("datepicker-calendar", "//*[@id='cell{}".format(departure_day))
+        day_to_click = day_to_click + "']"
 
-        wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click))).click()
 
-        table_month2 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[1] + '"]/div/div/div/div/div/div[1]')
+        wait.until(EC.element_to_be_clickable((By.XPATH, day_to_click))).click()
+        table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div[1]/h2/span[2]')
+
         month_return_table = table_month2[0].text
         return_day, return_month = return_date.split("/")
         if return_day[0] == "0":
@@ -150,17 +164,18 @@ for dest in destinations:
         # change month on the return table
         while True:
             if return_month_extended.upper() != month_return_table.upper():
-                driver.find_element_by_xpath("//*[@id='" + month_header_id[1] + "']/div/div/div/div/div/div[4]").click()
+                driver.find_element_by_xpath("//*[@id='" + month_header_id[1] + "']/div[1]/button[2]").click()
 
-                table_month2 = driver.find_elements_by_xpath('//*[@id="' + month_header_id[1] + '"]/div/div/div/div/div/div[1]')
+                table_month2 = driver.find_elements_by_xpath('//*[@id="'+month_header_id[1]+'"]/div[1]/h2/span[2]')
                 month_return_table = table_month2[0].text
             else:
                 break
 
         # Change the day for the returning train
-        element_to_click2 = "//*[@id='" + tables_id[1] + "']//button[text()='" + return_day + "' and @class='picker__day picker__day--infocus']"
+        day_to_click = tables_id[0].replace("datepicker-calendar", "//*[@id='cell{}".format(return_day))
+        day_to_click = day_to_click + "']"
 
-        wait.until(EC.element_to_be_clickable((By.XPATH, element_to_click2))).click()
+        wait.until(EC.element_to_be_clickable((By.XPATH, day_to_click))).click()
 
         # choose to search from the earliest departure time possible
         dropdown = wait.until(EC.presence_of_element_located((By.ID, 'timeOptionsDeparture')))
