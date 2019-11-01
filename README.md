@@ -10,7 +10,7 @@ You'll need to install:
 * selenium
 * bs4
 * lxml
-* numpy
+* numpy  
 Depending on which browser you want to run it:
 * chromedriver ([page](http://chromedriver.chromium.org))
 * geckodriver
